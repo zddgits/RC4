@@ -1,11 +1,9 @@
 package com.zd.test;
-
 import java.io.UnsupportedEncodingException;
 
 public class RC4 {
-
     /**
-     * RC4加密，将加密后的字节数据返回字符串
+     * RC4加密
      * @param data 需要加密的数据
      * @param key 加密密钥
      * @param chartSet 编码方式
@@ -16,27 +14,12 @@ public class RC4 {
         if (data == null || key == null) {
             return null;
         }
-        return bytesToHex(encodeRC4Byte(data, key, chartSet));
-    }
-
-    /**
-     * RC4加密，将返回加密后的字节数据
-     * @param data 需要加密的数据
-     * @param key 加密密钥
-     * @param chartSet 编码方式
-     * @return 返回加密后的数据
-     * @throws UnsupportedEncodingException
-     */
-    public static byte[] encodeRC4Byte(String data, String key, String chartSet) throws UnsupportedEncodingException {
-        if (data == null || key == null) {
-            return null;
-        }
         if (chartSet == null || chartSet.isEmpty()) {
             byte[] Data = data.getBytes();
-            return RC4Base(Data, key);
+            return bytesToHex(RC4Base(Data, key));
         } else {
             byte[] Data = data.getBytes(chartSet);
-            return RC4Base(Data, key);
+            return bytesToHex(RC4Base(Data, key));
         }
     }
 
@@ -57,13 +40,13 @@ public class RC4 {
 
     /**
      * RC4加密初始化密钥
-     * @param aKey
-     * @return
+     * @param Key 密钥
+     * @return 初始化密钥
      */
-    private static byte[] initKey(String aKey) {
+    private static byte[] initKey(String Key) {
         byte[] S = new byte[256];
         byte[] T = new byte[256];
-        byte[] K = aKey.getBytes();
+        byte[] K = Key.getBytes();
         int kLen = K.length;
         if (kLen == 0) {
             return null;
@@ -85,14 +68,14 @@ public class RC4 {
     }
     /**
      * 字节数组转十六进制
-     * @param bytes
-     * @return
+     * @param bytes 字节数字
+     * @return 十六进制字符串
      */
     public static String bytesToHex(byte[] bytes) {
-        StringBuffer sb = new StringBuffer();
-        for(int i = 0; i < bytes.length; i++) {
-            String hex = Integer.toHexString(bytes[i] & 0xFF);
-            if(hex.length() < 2){
+        StringBuilder sb = new StringBuilder();
+        for (byte aByte : bytes) {
+            String hex = Integer.toHexString(aByte & 0xFF);
+            if (hex.length() < 2) {
                 sb.append(0);
             }
             sb.append(hex);
@@ -102,22 +85,22 @@ public class RC4 {
 
     /**
      * 十六进制转字节数组
-     * @param
+     * @param 
      * @return
      */
-    public static byte[] hexToByte(String inHex){
-        int hexlen = inHex.length();
+    public static byte[] hexToByte(String hexString){
+        int hexlen = hexString.length();
         byte[] result;
         if (hexlen % 2 == 1){
             hexlen++;
             result = new byte[(hexlen/2)];
-            inHex="0"+inHex;
+            hexString="0"+hexString;
         }else {
             result = new byte[(hexlen/2)];
         }
         int j=0;
         for (int i = 0; i < hexlen; i+=2){
-            result[j]=(byte)Integer.parseInt(inHex.substring(i,i+2),16);
+            result[j]=(byte)Integer.parseInt(hexString.substring(i,i+2),16);
             j++;
         }
         return result;
