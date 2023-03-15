@@ -61,27 +61,22 @@ public class RC4 {
      * @return
      */
     private static byte[] initKey(String aKey) {
-        byte[] K = aKey.getBytes();
-        int kLen = K.length;
         byte[] S = new byte[256];
         byte[] T = new byte[256];
-        //1初始化S
-        for (int i = 0; i < 256; i++) {
-            S[i] = (byte) i;
-        }
-        int index1 = 0;
-        int index2 = 0;
+        byte[] K = aKey.getBytes();
+        int kLen = K.length;
         if (kLen == 0) {
             return null;
         }
-        //2初始化T
-        for(int i = 0;i < 256 ; i++){
+        //1初始化S和T
+        for (int i = 0; i < 256; i++) {
+            S[i] = (byte) i;
             T[i]=K[i % kLen];
         }
-        //3初始排列S
+        //2初始排列S
         int j = 0;
         for(int i = 0; i < 256; i++) {
-            j = (j + S[i] + T[i]) % 256;
+            j = (j + (S[i] & 0xff) + (T[i] & 0xff)) & 0xff;//取后八位
             byte tmp = S[i];
             S[i] = S[j];
             S[j] = tmp;
@@ -129,25 +124,26 @@ public class RC4 {
     }
 
     /**
-     * RC4解密
+     * 产生密钥流并与输入异或
      * @param input
-     * @param mKkey
+     * @param Key
      * @return
      */
-    private static byte[] RC4Base(byte[] input, String mKkey) {
-        int x = 0;
-        int y = 0;
-        byte key[] = initKey(mKkey);
-        int xorIndex;
+    private static byte[] RC4Base(byte[] input, String Key) {
+        int i = 0;
+        int j = 0;
+        byte[] S = initKey(Key);
+        int t;
         byte[] result = new byte[input.length];
-        for (int i = 0; i < input.length; i++) {
-            x = (x + 1) & 0xff;
-            y = ((key[x] & 0xff) + y) & 0xff;
-            byte tmp = key[x];
-            key[x] = key[y];
-            key[y] = tmp;
-            xorIndex = ((key[x] & 0xff) + (key[y] & 0xff)) & 0xff;
-            result[i] = (byte) (input[i] ^ key[xorIndex]);
+        for (int r = 0; r < input.length; r++) {
+            i = (i + 1) & 0xff;
+            assert S != null;
+            j = ((S[i] & 0xff) + j) & 0xff;
+            byte tmp = S[i];
+            S[i] = S[j];
+            S[j] = tmp;
+            t = ((S[i] & 0xff) + (S[j] & 0xff)) & 0xff;
+            result[r] = (byte) (input[r] ^ S[t]);
         }
         return result;
     }
