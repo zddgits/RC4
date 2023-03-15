@@ -6,3 +6,4 @@ import org.junit.runner.RunWith;
 @SelectPackages("com.zd.test")
 public class CalculatorTestSuite {
 }
+
